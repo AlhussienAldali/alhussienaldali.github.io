@@ -6,6 +6,7 @@ class Project {
     required this.title,
     required this.description,
     required this.tech,
+    this.bannerAssetPath,
     this.webUrl,
     this.githubUrl,
     this.liveDemoUrl,
@@ -14,6 +15,9 @@ class Project {
   final String title;
   final String description;
   final List<String> tech;
+
+  /// Decorative banner (`assets/images/...`) shown at the top of the card.
+  final String? bannerAssetPath;
 
   /// Primary public link (product site, store listing, or live build).
   final String? webUrl;

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../core/constants/asset_paths.dart';
 import '../../../../core/constants/breakpoints.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/layout/neon_section_panel.dart';
 import '../../domain/entities/experience_item.dart';
 import '../providers/about_providers.dart';
 
@@ -22,75 +24,136 @@ class AboutPage extends ConsumerWidget {
         final horizontal = isMobile ? 20.0 : (isTablet ? 32.0 : 48.0);
         final maxWidth = isMobile ? double.infinity : 980.0;
 
-        final titleSm = GoogleFonts.orbitron(
-          fontSize: isMobile ? 13 : 14,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 1.2,
-          color: AppColors.cyan.withValues(alpha: 0.92),
+        final summaryStyle = GoogleFonts.montserrat(
+          fontSize: isMobile ? 15.5 : 17,
+          height: 1.7,
+          color: Colors.white.withValues(alpha: 0.9),
         );
 
+        Widget sectionGap() => SizedBox(height: isMobile ? 22 : 26);
+
         return SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: horizontal, vertical: 28),
+          padding: EdgeInsets.fromLTRB(horizontal, 28, horizontal, 40),
           child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: maxWidth),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(content.title.toUpperCase(), style: titleSm),
-                  const SizedBox(height: 10),
-                  Text(
-                    content.headline,
-                    style: GoogleFonts.orbitron(
-                      fontSize: isMobile ? 24 : 32,
-                      fontWeight: FontWeight.w800,
-                      height: 1.15,
-                      letterSpacing: 0.5,
-                      color: Colors.white,
+                  NeonSectionPanel(
+                    assetPath: AssetPaths.aboutIntro,
+                    eyebrow: content.title,
+                    title: content.headline,
+                    isMobile: isMobile,
+                    child: Text(content.summary, style: summaryStyle),
+                  ),
+                  sectionGap(),
+                  NeonSectionPanel(
+                    assetPath: AssetPaths.aboutStack,
+                    title: 'Stack',
+                    childTopSpacing: 14,
+                    isMobile: isMobile,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Tools and stacks I rely on day to day for production Flutter work.',
+                          style: summaryStyle.copyWith(
+                            fontSize: isMobile ? 14 : 14.75,
+                            color: Colors.white.withValues(alpha: 0.78),
+                            height: 1.55,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        _ChipWrap(labels: content.techStack),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    content.summary,
-                    style: GoogleFonts.montserrat(
-                      fontSize: isMobile ? 15.5 : 17,
-                      height: 1.65,
-                      color: Colors.white.withValues(alpha: 0.92),
+                  sectionGap(),
+                  NeonSectionPanel(
+                    assetPath: AssetPaths.aboutFocus,
+                    title: 'Focus',
+                    childTopSpacing: 14,
+                    isMobile: isMobile,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'How I collaborate with teams — from architecture sessions to releases.',
+                          style: summaryStyle.copyWith(
+                            fontSize: isMobile ? 14 : 14.75,
+                            color: Colors.white.withValues(alpha: 0.78),
+                            height: 1.55,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        _ChipWrap(labels: content.softSkills),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 28),
-                  _SectionTitle(label: 'Stack', isMobile: isMobile),
-                  const SizedBox(height: 12),
-                  _ChipWrap(labels: content.techStack),
-                  const SizedBox(height: 24),
-                  _SectionTitle(label: 'Focus', isMobile: isMobile),
-                  const SizedBox(height: 12),
-                  _ChipWrap(labels: content.softSkills),
-                  const SizedBox(height: 28),
-                  _SectionTitle(label: 'Experience', isMobile: isMobile),
-                  const SizedBox(height: 14),
-                  for (final e in content.experience) ...[
-                    _ExperienceCard(exp: e, compact: isMobile),
-                    const SizedBox(height: 12),
-                  ],
-                  const SizedBox(height: 12),
-                  _SectionTitle(label: 'Education', isMobile: isMobile),
-                  const SizedBox(height: 10),
-                  for (final line in content.education) ...[
-                    _BulletLine(text: line),
-                    const SizedBox(height: 8),
-                  ],
-                  const SizedBox(height: 12),
-                  _SectionTitle(label: 'Awards', isMobile: isMobile),
-                  const SizedBox(height: 10),
-                  for (final line in content.awards) ...[
-                    _BulletLine(text: line),
-                    const SizedBox(height: 8),
-                  ],
-                  const SizedBox(height: 12),
-                  _SectionTitle(label: 'Languages', isMobile: isMobile),
-                  const SizedBox(height: 10),
-                  _ChipWrap(labels: content.languages),
+                  sectionGap(),
+                  NeonSectionPanel(
+                    assetPath: AssetPaths.aboutExperience,
+                    title: 'Experience',
+                    childTopSpacing: 12,
+                    isMobile: isMobile,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Roles and highlights in chronological detail below.',
+                          style: summaryStyle.copyWith(
+                            fontSize: isMobile ? 14 : 14.75,
+                            color: Colors.white.withValues(alpha: 0.78),
+                            height: 1.55,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        for (final e in content.experience) ...[
+                          _ExperienceCard(exp: e, compact: isMobile),
+                          const SizedBox(height: 12),
+                        ],
+                      ],
+                    ),
+                  ),
+                  sectionGap(),
+                  NeonSectionPanel(
+                    assetPath: AssetPaths.aboutEducation,
+                    title: 'Education',
+                    childTopSpacing: 14,
+                    isMobile: isMobile,
+                    child: _BulletedLines(lines: content.education),
+                  ),
+                  sectionGap(),
+                  NeonSectionPanel(
+                    assetPath: AssetPaths.aboutAwards,
+                    title: 'Awards',
+                    childTopSpacing: 14,
+                    isMobile: isMobile,
+                    child: _BulletedLines(lines: content.awards),
+                  ),
+                  sectionGap(),
+                  NeonSectionPanel(
+                    assetPath: AssetPaths.aboutLanguages,
+                    title: 'Languages',
+                    childTopSpacing: 14,
+                    isMobile: isMobile,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Comfortable collaborating and releasing in multilingual environments.',
+                          style: summaryStyle.copyWith(
+                            fontSize: isMobile ? 14 : 14.75,
+                            color: Colors.white.withValues(alpha: 0.78),
+                            height: 1.55,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        _ChipWrap(labels: content.languages),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -101,21 +164,21 @@ class AboutPage extends ConsumerWidget {
   }
 }
 
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({required this.label, required this.isMobile});
+class _BulletedLines extends StatelessWidget {
+  const _BulletedLines({required this.lines});
 
-  final String label;
-  final bool isMobile;
+  final List<String> lines;
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      label,
-      style: GoogleFonts.orbitron(
-        fontSize: isMobile ? 17 : 19,
-        fontWeight: FontWeight.w800,
-        color: Colors.white,
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var i = 0; i < lines.length; i++) ...[
+          _BulletLine(text: lines[i]),
+          if (i != lines.length - 1) const SizedBox(height: 10),
+        ],
+      ],
     );
   }
 }
@@ -130,20 +193,22 @@ class _BulletLine extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '· ',
-          style: GoogleFonts.montserrat(
-            fontSize: 15,
-            color: AppColors.orange.withValues(alpha: 0.85),
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Icon(
+            Icons.blur_on_rounded,
+            size: 16,
+            color: AppColors.cyan.withValues(alpha: 0.75),
           ),
         ),
+        const SizedBox(width: 10),
         Expanded(
           child: Text(
             text,
             style: GoogleFonts.montserrat(
               fontSize: 15,
-              height: 1.55,
-              color: Colors.white.withValues(alpha: 0.9),
+              height: 1.6,
+              color: Colors.white.withValues(alpha: 0.91),
             ),
           ),
         ),
@@ -178,11 +243,11 @@ class _ExperienceCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(compact ? 14 : 18),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: AppColors.deep3.withValues(alpha: 0.75),
+          color: AppColors.deep3.withValues(alpha: 0.72),
         ),
-        color: AppColors.surface.withValues(alpha: 0.35),
+        color: AppColors.surface.withValues(alpha: 0.52),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,20 +274,36 @@ class _ExperienceCard extends StatelessWidget {
             exp.location,
             style: GoogleFonts.montserrat(
               fontSize: 12.5,
-              color: Colors.white.withValues(alpha: 0.65),
+              color: Colors.white.withValues(alpha: 0.62),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           for (final h in exp.highlights) ...[
-            Text(
-              '— $h',
-              style: GoogleFonts.montserrat(
-                fontSize: 13.8,
-                height: 1.5,
-                color: Colors.white.withValues(alpha: 0.88),
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 3),
+                  child: Icon(
+                    Icons.horizontal_rule_rounded,
+                    size: 14,
+                    color: AppColors.orange.withValues(alpha: 0.82),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    h,
+                    style: GoogleFonts.montserrat(
+                      fontSize: 13.85,
+                      height: 1.55,
+                      color: Colors.white.withValues(alpha: 0.89),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
           ],
         ],
       ),
@@ -245,7 +326,7 @@ class _SkillChip extends StatelessWidget {
           color: AppColors.cyan.withValues(alpha: 0.35),
           width: 1,
         ),
-        color: AppColors.surface.withValues(alpha: 0.35),
+        color: AppColors.surface.withValues(alpha: 0.5),
       ),
       child: Text(
         label,

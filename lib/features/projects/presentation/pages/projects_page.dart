@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../core/constants/asset_paths.dart';
 import '../../../../core/constants/breakpoints.dart';
 import '../../../../core/providers/services_providers.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/layout/neon_section_panel.dart';
 import '../providers/projects_providers.dart';
 import '../widgets/project_card.dart';
 
@@ -34,44 +35,46 @@ class ProjectsPage extends ConsumerWidget {
         final horizontal = isMobile ? 20.0 : (isTablet ? 32.0 : 48.0);
         final maxWidth = isMobile ? double.infinity : 1040.0;
 
+        final introBody = GoogleFonts.montserrat(
+          fontSize: isMobile ? 15.5 : 16.85,
+          height: 1.68,
+          color: Colors.white.withValues(alpha: 0.89),
+        );
+
+        final tipStyle = GoogleFonts.montserrat(
+          fontSize: 12.5,
+          height: 1.5,
+          color: Colors.white.withValues(alpha: 0.54),
+        );
+
         return SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: horizontal, vertical: 28),
+          padding: EdgeInsets.fromLTRB(horizontal, 28, horizontal, 40),
           child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: maxWidth),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    'Projects',
-                    style: GoogleFonts.orbitron(
-                      fontSize: isMobile ? 26 : 34,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.6,
-                      color: Colors.white,
+                  NeonSectionPanel(
+                    assetPath: AssetPaths.projectsHeader,
+                    eyebrow: 'Selected work',
+                    title: 'Projects',
+                    isMobile: isMobile,
+                    child: Text(
+                      'Flutter-focused deliveries — AI-assisted consumer apps, Siemens field tooling '
+                      'in the energy stack, marketplace flows, plus this Flutter web portfolio.',
+                      style: introBody,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'A selection of work — clean, modern, and built for the web.',
-                    style: GoogleFonts.montserrat(
-                      fontSize: isMobile ? 15.5 : 17,
-                      height: 1.6,
-                      color: Colors.white.withValues(alpha: 0.9),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
+                  SizedBox(height: isMobile ? 20 : 24),
                   for (final p in projects) ...[
                     ProjectCard(project: p, onOpenUrl: openUrl),
-                    const SizedBox(height: 14),
+                    SizedBox(height: isMobile ? 14 : 16),
                   ],
-                  const SizedBox(height: 6),
                   Text(
-                    'Tip: Replace the static list in the repo with your real projects.',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 13,
-                      color: AppColors.cyan.withValues(alpha: 0.85),
-                    ),
+                    'Tip: Swap the repository’s static project list when you refresh case studies '
+                    'or add screenshots.',
+                    style: tipStyle,
                   ),
                 ],
               ),
@@ -82,4 +85,3 @@ class ProjectsPage extends ConsumerWidget {
     );
   }
 }
-
