@@ -26,32 +26,74 @@ class WidgetExplorePage extends ConsumerWidget {
         final maxWidth = 1100.0;
 
         return SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: horizontal, vertical: 28),
+          padding: EdgeInsets.symmetric(horizontal: horizontal, vertical: 22),
           child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: maxWidth),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    'Widget explore',
-                    style: GoogleFonts.orbitron(
-                      fontSize: isMobile ? 26 : 34,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.6,
-                      color: Colors.white,
+                  ClipPath(
+                    clipper: const _WidgetsSlantClipper(),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            AppColors.deep2.withValues(alpha: 0.95),
+                            AppColors.surface.withValues(alpha: 0.55),
+                          ],
+                        ),
+                        border: Border.all(
+                          color: AppColors.cyan.withValues(alpha: 0.22),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          isMobile ? 18 : 28,
+                          isMobile ? 22 : 28,
+                          isMobile ? 18 : 36,
+                          isMobile ? 26 : 32,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'GALLERY',
+                              style: GoogleFonts.orbitron(
+                                fontSize: 10,
+                                letterSpacing: 2.8,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.cyan.withValues(alpha: 0.85),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Widget explore',
+                              style: GoogleFonts.orbitron(
+                                fontSize: isMobile ? 26 : 34,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.4,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              'Drop-in experiments and UI atoms — each card is a sandbox. '
+                              'Copy one, wire a new preview, and ship.',
+                              style: GoogleFonts.montserrat(
+                                fontSize: isMobile ? 15 : 16.2,
+                                height: 1.55,
+                                color: Colors.white.withValues(alpha: 0.86),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Drop-in experiments and UI atoms. Copy a card, wire a new preview, and ship.',
-                    style: GoogleFonts.montserrat(
-                      fontSize: isMobile ? 15.5 : 16.5,
-                      height: 1.55,
-                      color: Colors.white.withValues(alpha: 0.88),
-                    ),
-                  ),
-                  const SizedBox(height: 26),
+                  const SizedBox(height: 22),
                   LayoutBuilder(
                     builder: (context, bc) {
                       final width = bc.maxWidth;
@@ -67,7 +109,7 @@ class WidgetExplorePage extends ConsumerWidget {
                           mainAxisExtent: cross == 2 ? 285 : 298,
                         ),
                         itemBuilder: (context, i) =>
-                            _DemoCard(entry: demos[i]),
+                            _DemoCard(entry: demos[i], index: i),
                       );
                     },
                   ),
@@ -81,21 +123,55 @@ class WidgetExplorePage extends ConsumerWidget {
   }
 }
 
+class _WidgetsSlantClipper extends CustomClipper<Path> {
+  const _WidgetsSlantClipper();
+
+  @override
+  Path getClip(Size size) {
+    const cut = 28.0;
+    return Path()
+      ..moveTo(0, 0)
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width, size.height - cut)
+      ..lineTo(0, size.height)
+      ..close();
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
+}
+
 class _DemoCard extends StatelessWidget {
-  const _DemoCard({required this.entry});
+  const _DemoCard({required this.entry, required this.index});
 
   final WidgetDemoEntry entry;
+  final int index;
 
   @override
   Widget build(BuildContext context) {
+    final skew = BorderRadius.only(
+      topLeft: Radius.circular(18 + (index % 3) * 2.0),
+      topRight: const Radius.circular(10),
+      bottomRight: Radius.circular(20 - (index % 2) * 3.0),
+      bottomLeft: const Radius.circular(14),
+    );
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: skew,
         border: Border.all(
-          color: AppColors.deep3.withValues(alpha: 0.85),
+          color: index.isEven
+              ? AppColors.cyan.withValues(alpha: 0.35)
+              : AppColors.orange.withValues(alpha: 0.32),
         ),
-        color: AppColors.surface.withValues(alpha: 0.4),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.surface.withValues(alpha: 0.55),
+            AppColors.deep1.withValues(alpha: 0.45),
+          ],
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

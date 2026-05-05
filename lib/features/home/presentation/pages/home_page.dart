@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/constants/animation_durations.dart';
 import '../../../../core/constants/breakpoints.dart';
 import '../../../../core/providers/services_providers.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/background/animated_gradient_backdrop.dart';
 import '../../../../core/widgets/hero/hero_cta_row.dart';
 import '../../../../core/widgets/hero/hero_gif_section.dart';
@@ -150,47 +152,172 @@ class _HomePageState extends ConsumerState<HomePage>
                       minHeight: minH,
                       maxWidth: maxContent,
                     ),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          HeroGifSection(
-                            maxHeight: gifMaxHeight,
-                            assetPath: content.heroGifAssetPath,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: AnimatedBuilder(
+                              animation: _gradientController,
+                              builder: (context, _) {
+                                final t = _gradientController.value;
+                                final c = Color.lerp(
+                                  AppColors.cyan,
+                                  AppColors.orange,
+                                  0.35 + 0.35 * math.sin(t * math.pi * 2),
+                                )!;
+                                return CustomPaint(
+                                  painter: _HomeCornerBracketsPainter(
+                                    color:
+                                        c.withValues(alpha: 0.18 + 0.08 * t),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                          SizedBox(height: isMobile ? 28 : 36),
-                          FadeTransition(
-                            opacity: _bioFade,
-                            child: SlideTransition(
-                              position: _bioSlide,
-                              child: TypingBioDisplay(
-                                fullText: content.bioText,
-                                visibleLength: _typedLength,
-                                textAlign: TextAlign.center,
-                                baseStyle: GoogleFonts.montserrat(
-                                  fontSize: isMobile ? 16 : 18,
-                                  height: 1.55,
-                                  color: Colors.white.withValues(alpha: 0.92),
-                                  fontWeight: FontWeight.w400,
+                        ),
+                        Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              _HomeHeroIntro(
+                                isMobile: isMobile,
+                                pulse: _gradientController,
+                              ),
+                              SizedBox(height: isMobile ? 20 : 26),
+                              AnimatedBuilder(
+                                animation: _gradientController,
+                                builder: (context, _) {
+                                  final t = _gradientController.value;
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.circular(20),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AppColors.cyan.withValues(
+                                              alpha: 0.12 + 0.1 * t),
+                                          blurRadius: 28,
+                                          spreadRadius: -2,
+                                        ),
+                                        BoxShadow(
+                                          color: AppColors.orange.withValues(
+                                              alpha: 0.08),
+                                          blurRadius: 40,
+                                          spreadRadius: -6,
+                                        ),
+                                      ],
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          Color.lerp(AppColors.cyan,
+                                              AppColors.orange, t)!,
+                                          Color.lerp(AppColors.orange,
+                                              AppColors.cyan, t)!,
+                                        ],
+                                      ),
+                                    ),
+                                    padding: const EdgeInsets.all(2),
+                                    child: ClipRRect(
+                                      borderRadius:
+                                          BorderRadius.circular(18),
+                                      child: HeroGifSection(
+                                        maxHeight: gifMaxHeight,
+                                        assetPath:
+                                            content.heroGifAssetPath,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              SizedBox(height: isMobile ? 24 : 30),
+                              FadeTransition(
+                                opacity: _bioFade,
+                                child: SlideTransition(
+                                  position: _bioSlide,
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      maxWidth: 760,
+                                    ),
+                                    child: DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(22),
+                                        border: Border.all(
+                                          color: Colors.white
+                                              .withValues(alpha: 0.14),
+                                        ),
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            AppColors.surface.withValues(
+                                                alpha: 0.55),
+                                            AppColors.deep2.withValues(
+                                                alpha: 0.42),
+                                          ],
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: AppColors.deep1
+                                                .withValues(alpha: 0.6),
+                                            blurRadius: 24,
+                                            offset: const Offset(0, 12),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Padding(
+                                        padding: EdgeInsets.fromLTRB(
+                                          isMobile ? 18 : 26,
+                                          isMobile ? 20 : 24,
+                                          isMobile ? 18 : 26,
+                                          isMobile ? 20 : 24,
+                                        ),
+                                        child: TypingBioDisplay(
+                                          fullText: content.bioText,
+                                          visibleLength: _typedLength,
+                                          textAlign: TextAlign.center,
+                                          baseStyle: GoogleFonts.montserrat(
+                                            fontSize:
+                                                isMobile ? 16 : 18,
+                                            height: 1.58,
+                                            color: Colors.white.withValues(
+                                                alpha: 0.93),
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                          SizedBox(height: isMobile ? 28 : 36),
-                          FadeTransition(
-                            opacity: _buttonsFade,
-                            child: SlideTransition(
-                              position: _buttonsSlide,
-                              child: HeroCtaRow(
-                                isMobile: isMobile,
-                                onGithub: () => _openUrl(content.githubUrl),
-                                onDemo: () => _openUrl(content.liveDemoUrl),
+                              SizedBox(height: isMobile ? 24 : 30),
+                              FadeTransition(
+                                opacity: _buttonsFade,
+                                child: SlideTransition(
+                                  position: _buttonsSlide,
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      maxWidth: isMobile
+                                          ? double.infinity
+                                          : 520,
+                                    ),
+                                    child: HeroCtaRow(
+                                      isMobile: isMobile,
+                                      onGithub: () =>
+                                          _openUrl(content.githubUrl),
+                                      onDemo: () =>
+                                          _openUrl(content.liveDemoUrl),
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 );
@@ -201,5 +328,170 @@ class _HomePageState extends ConsumerState<HomePage>
       ),
     );
   }
+}
+
+class _HomeHeroIntro extends StatelessWidget {
+  const _HomeHeroIntro({
+    required this.isMobile,
+    required this.pulse,
+  });
+
+  final bool isMobile;
+  final Animation<double> pulse;
+
+  @override
+  Widget build(BuildContext context) {
+    final sub = GoogleFonts.montserrat(
+      fontSize: isMobile ? 14 : 15,
+      height: 1.45,
+      fontWeight: FontWeight.w500,
+      color: Colors.white.withValues(alpha: 0.72),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          'PORTFOLIO',
+          style: GoogleFonts.orbitron(
+            fontSize: isMobile ? 10.5 : 11.5,
+            letterSpacing: 3,
+            fontWeight: FontWeight.w800,
+            color: AppColors.cyan.withValues(alpha: 0.88),
+          ),
+        ),
+        SizedBox(height: isMobile ? 8 : 10),
+        AnimatedBuilder(
+          animation: pulse,
+          builder: (context, _) {
+            final t = pulse.value;
+            return ShaderMask(
+              blendMode: BlendMode.srcIn,
+              shaderCallback: (bounds) {
+                return LinearGradient(
+                  begin: Alignment(-1 + t * 0.5, 0),
+                  end: Alignment(1 - t * 0.35, 0),
+                  colors: [
+                    AppColors.cyan,
+                    AppColors.orange,
+                    AppColors.cyan.withValues(alpha: 0.9),
+                  ],
+                  stops: const [0.0, 0.52, 1.0],
+                ).createShader(bounds);
+              },
+              child: Text(
+                'Production Flutter',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.orbitron(
+                  fontSize: isMobile ? 24 : 34,
+                  fontWeight: FontWeight.w900,
+                  height: 1.1,
+                  letterSpacing: 0.4,
+                  color: Colors.white,
+                ),
+              ),
+            );
+          },
+        ),
+        SizedBox(height: isMobile ? 8 : 10),
+        Text(
+          'Senior mobile dev · clean architecture · UX that survives the field',
+          textAlign: TextAlign.center,
+          style: sub,
+        ),
+        SizedBox(height: isMobile ? 14 : 16),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: isMobile ? 8 : 12,
+          runSpacing: 10,
+          children: const [
+            _HomeTagChip(label: 'Flutter & Dart', hue: 0),
+            _HomeTagChip(label: 'Web & mobile', hue: 1),
+            _HomeTagChip(label: '8+ yrs in IT', hue: 2),
+            _HomeTagChip(label: 'Riverpod · GoRouter', hue: 0),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _HomeTagChip extends StatelessWidget {
+  const _HomeTagChip({required this.label, required this.hue});
+
+  final String label;
+  final int hue;
+
+  @override
+  Widget build(BuildContext context) {
+    final accent = hue.isEven ? AppColors.cyan : AppColors.orange;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: accent.withValues(alpha: 0.35),
+        ),
+        gradient: LinearGradient(
+          colors: [
+            accent.withValues(alpha: 0.14),
+            AppColors.deep1.withValues(alpha: 0.45),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: accent.withValues(alpha: 0.08),
+            blurRadius: 12,
+            spreadRadius: -2,
+          ),
+        ],
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.montserrat(
+          fontSize: 12.5,
+          fontWeight: FontWeight.w600,
+          color: Colors.white.withValues(alpha: 0.9),
+        ),
+      ),
+    );
+  }
+}
+
+/// Light “viewfinder” corners — keeps the hero centered while differing from inner pages.
+class _HomeCornerBracketsPainter extends CustomPainter {
+  _HomeCornerBracketsPainter({required this.color});
+
+  final Color color;
+
+  static const _len = 32.0;
+  static const _inset = 10.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final p = Paint()
+      ..color = color
+      ..strokeWidth = 1.6
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.square;
+
+    void corner(double x0, double y0, double dx1, double dy1, double dx2,
+        double dy2) {
+      final path = Path()
+        ..moveTo(x0 + dx1 * _len, y0 + dy1 * _len)
+        ..lineTo(x0, y0)
+        ..lineTo(x0 + dx2 * _len, y0 + dy2 * _len);
+      canvas.drawPath(path, p);
+    }
+
+    corner(_inset, _inset, 1, 0, 0, 1);
+    corner(size.width - _inset, _inset, -1, 0, 0, 1);
+    corner(_inset, size.height - _inset, 1, 0, 0, -1);
+    corner(size.width - _inset, size.height - _inset, -1, 0, 0, -1);
+  }
+
+  @override
+  bool shouldRepaint(covariant _HomeCornerBracketsPainter oldDelegate) =>
+      oldDelegate.color != color;
 }
 

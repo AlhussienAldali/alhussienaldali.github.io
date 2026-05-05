@@ -10,15 +10,82 @@ class ProjectCard extends StatelessWidget {
     super.key,
     required this.project,
     required this.onOpenUrl,
+    this.accentVariant = 0,
   });
 
   final Project project;
   final Future<void> Function(String url) onOpenUrl;
 
+  /// Rotates border shape and gradient so the list reads less like clones.
+  final int accentVariant;
+
   static const _bannerAspect = 960 / 210.0;
+
+  static BorderRadius _outerRadius(int v) {
+    switch (v % 4) {
+      case 1:
+        return const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(12),
+          bottomRight: Radius.circular(24),
+          bottomLeft: Radius.circular(12),
+        );
+      case 2:
+        return const BorderRadius.only(
+          topLeft: Radius.circular(12),
+          topRight: Radius.circular(24),
+          bottomRight: Radius.circular(12),
+          bottomLeft: Radius.circular(24),
+        );
+      case 3:
+        return BorderRadius.circular(20);
+      case _:
+        return BorderRadius.circular(18);
+    }
+  }
+
+  static Alignment _gBegin(int v) {
+    switch (v % 4) {
+      case 1:
+        return Alignment.bottomLeft;
+      case 2:
+        return Alignment.topRight;
+      case 3:
+        return Alignment.centerLeft;
+      default:
+        return Alignment.topLeft;
+    }
+  }
+
+  static Alignment _gEnd(int v) {
+    switch (v % 4) {
+      case 1:
+        return Alignment.topRight;
+      case 2:
+        return Alignment.bottomLeft;
+      case 3:
+        return Alignment.bottomRight;
+      default:
+        return Alignment.bottomRight;
+    }
+  }
+
+  static BorderRadius _innerRadius(BorderRadius outer, double inset) {
+    double s(double x) => (x - inset).clamp(2.0, 99.0);
+    return BorderRadius.only(
+      topLeft: Radius.circular(s(outer.topLeft.x)),
+      topRight: Radius.circular(s(outer.topRight.x)),
+      bottomLeft: Radius.circular(s(outer.bottomLeft.x)),
+      bottomRight: Radius.circular(s(outer.bottomRight.x)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final v = accentVariant;
+    final outer = _outerRadius(v);
+    final inner = _innerRadius(outer, 2);
+
     final primary = project.primaryLaunchUrl;
     final bannerPath = project.bannerAssetPath;
 
@@ -97,14 +164,14 @@ class ProjectCard extends StatelessWidget {
       );
     }
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+    final core = ClipRRect(
+      borderRadius: inner,
       child: DecoratedBox(
         decoration: BoxDecoration(
           border: Border.all(
-            color: AppColors.deep3.withValues(alpha: 0.72),
+            color: AppColors.deep3.withValues(alpha: 0.65),
           ),
-          color: AppColors.surface.withValues(alpha: 0.38),
+          color: AppColors.surface.withValues(alpha: 0.42),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -189,6 +256,32 @@ class ProjectCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: outer,
+        gradient: LinearGradient(
+          begin: _gBegin(v),
+          end: _gEnd(v),
+          colors: [
+            AppColors.cyan.withValues(alpha: 0.42),
+            AppColors.orange.withValues(alpha: 0.38),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.cyan.withValues(alpha: 0.06),
+            blurRadius: 22,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(1.5),
+      child: ClipRRect(
+        borderRadius: outer,
+        child: core,
       ),
     );
   }
