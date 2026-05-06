@@ -7,6 +7,13 @@ class WidgetExploreRepositoryImpl implements WidgetExploreRepository {
   List<WidgetDemoEntry> listDemos() {
     return const [
       WidgetDemoEntry(
+        id: 'image_loader_takehome',
+        title: 'Image loader',
+        description:
+            'Home project: exploring creative loading physics (FancyLogoLoader), random-image flow, '
+            'caching, and palette-backdrop polish—vendored here as a full RandomImageScreen.',
+      ),
+      WidgetDemoEntry(
         id: 'neon_orb_pulse',
         title: 'Neon Orb',
         description: 'Glow + pulse accent — reusable for statuses or badges.',
@@ -20,11 +27,6 @@ class WidgetExploreRepositoryImpl implements WidgetExploreRepository {
         id: 'liquid_chip',
         title: 'Liquid chip',
         description: 'Gradient border chip for tags or metrics.',
-      ),
-      WidgetDemoEntry(
-        id: 'you_custom',
-        title: 'Your widget',
-        description: 'Duplicate a card above and map a new preview in widget_explore_page.dart.',
       ),
     ];
   }

@@ -17,8 +17,7 @@ abstract final class AssetPaths {
 
   /// Projects page hero banner + optional per-project tiles.
   static const String projectsHeader = 'assets/images/projects/projects_header.png';
-  static const String projectHumani = 'assets/images/projects/project_humani.png';
-  static const String projectSiemens = 'assets/images/projects/project_siemens.png';
-  static const String projectMaids = 'assets/images/projects/project_maids.png';
-  static const String projectPortfolioSite = 'assets/images/projects/project_portfolio.png';
+
+  /// Humani portfolio card banner (bundled from humani.ai; avoids web CORS on direct PNG URLs).
+  static const String projectsHumaniFeature = 'assets/images/projects/humani_feature_2.png';
 }

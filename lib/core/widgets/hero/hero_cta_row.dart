@@ -3,18 +3,18 @@ import 'package:flutter/material.dart';
 import '../../theme/app_colors.dart';
 import 'hero_cta_button.dart';
 
-/// GitHub + Live Demo row; stacks vertically on narrow viewports.
+/// GitHub + LinkedIn row; stacks vertically on narrow viewports.
 class HeroCtaRow extends StatelessWidget {
   const HeroCtaRow({
     super.key,
     required this.isMobile,
     required this.onGithub,
-    required this.onDemo,
+    required this.onLinkedIn,
   });
 
   final bool isMobile;
   final VoidCallback onGithub;
-  final VoidCallback onDemo;
+  final VoidCallback onLinkedIn;
 
   @override
   Widget build(BuildContext context) {
@@ -27,10 +27,10 @@ class HeroCtaRow extends StatelessWidget {
         onPressed: onGithub,
       ),
       HeroCtaButton(
-        label: 'Live Demo',
-        icon: Icons.rocket_launch_rounded,
+        label: 'LinkedIn',
+        icon: Icons.work_rounded,
         accent: AppColors.orange,
-        onPressed: onDemo,
+        onPressed: onLinkedIn,
       ),
     ];
 

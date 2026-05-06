@@ -308,8 +308,8 @@ class _HomePageState extends ConsumerState<HomePage>
                                       isMobile: isMobile,
                                       onGithub: () =>
                                           _openUrl(content.githubUrl),
-                                      onDemo: () =>
-                                          _openUrl(content.liveDemoUrl),
+                                      onLinkedIn: () =>
+                                          _openUrl(content.linkedinUrl),
                                     ),
                                   ),
                                 ),
@@ -380,7 +380,7 @@ class _HomeHeroIntro extends StatelessWidget {
                 ).createShader(bounds);
               },
               child: Text(
-                'Production Flutter',
+                'Production Level',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.orbitron(
                   fontSize: isMobile ? 24 : 34,
@@ -405,10 +405,10 @@ class _HomeHeroIntro extends StatelessWidget {
           spacing: isMobile ? 8 : 12,
           runSpacing: 10,
           children: const [
-            _HomeTagChip(label: 'Flutter & Dart', hue: 0),
+            _HomeTagChip(label: 'Flutter & Android & IOS', hue: 0),
             _HomeTagChip(label: 'Web & mobile', hue: 1),
             _HomeTagChip(label: '8+ yrs in IT', hue: 2),
-            _HomeTagChip(label: 'Riverpod · GoRouter', hue: 0),
+            _HomeTagChip(label: 'Clean Architecture · State Management', hue: 0),
           ],
         ),
       ],

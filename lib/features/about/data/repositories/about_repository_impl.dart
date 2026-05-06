@@ -9,8 +9,8 @@ class AboutRepositoryImpl implements AboutRepository {
       title: 'About',
       headline: 'Mobile developer · 8+ years in IT',
       summary:
-          'Cross-platform Flutter specialist with senior-level experience designing and delivering '
-          'production mobile apps—from AI-powered upgrades and Siemens field tooling to ecommerce '
+          'Cross-platform specialist with senior-level experience designing and delivering '
+          'production mobile apps—from AI-powered upgrades and field tooling to ecommerce '
           'and marketplace platforms. Strong on architecture reviews, Flutter core packages, CI/CD '
           'and pragmatic state management.',
       techStack: [

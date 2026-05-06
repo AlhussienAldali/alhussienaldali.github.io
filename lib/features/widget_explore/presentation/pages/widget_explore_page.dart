@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_loader/features/random_image/ui/random_image_screen.dart';
+import 'package:image_loader/utils/app_visual_theme.dart';
 
 import '../../../../core/constants/breakpoints.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -80,8 +82,7 @@ class WidgetExplorePage extends ConsumerWidget {
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              'Drop-in experiments and UI atoms — each card is a sandbox. '
-                              'Copy one, wire a new preview, and ship.',
+                              'Drop-in experiments and UI atoms — each card is its own sandbox.',
                               style: GoogleFonts.montserrat(
                                 fontSize: isMobile ? 15 : 16.2,
                                 height: 1.55,
@@ -96,20 +97,70 @@ class WidgetExplorePage extends ConsumerWidget {
                   const SizedBox(height: 22),
                   LayoutBuilder(
                     builder: (context, bc) {
-                      final width = bc.maxWidth;
-                      final cross = width > 900 ? 2 : 1;
-                      return GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: demos.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: cross,
-                          mainAxisSpacing: 16,
-                          crossAxisSpacing: 16,
-                          mainAxisExtent: cross == 2 ? 285 : 298,
-                        ),
-                        itemBuilder: (context, i) =>
-                            _DemoCard(entry: demos[i], index: i),
+                      const gap = 16.0;
+                      const wideSplit = 900.0;
+
+                      WidgetDemoEntry? loaderEntry;
+                      for (final d in demos) {
+                        if (d.id == 'image_loader_takehome') {
+                          loaderEntry = d;
+                          break;
+                        }
+                      }
+                      final otherDemos = demos
+                          .where((d) => d.id != 'image_loader_takehome')
+                          .toList();
+
+                      if (bc.maxWidth <= wideSplit) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (var i = 0; i < demos.length; i++) ...[
+                              _DemoCard(entry: demos[i], index: i),
+                              if (i != demos.length - 1) SizedBox(height: gap),
+                            ],
+                          ],
+                        );
+                      }
+
+                      if (loaderEntry == null || otherDemos.isEmpty) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (var i = 0; i < demos.length; i++) ...[
+                              _DemoCard(entry: demos[i], index: i),
+                              if (i != demos.length - 1) SizedBox(height: gap),
+                            ],
+                          ],
+                        );
+                      }
+
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: _DemoCard(
+                              entry: loaderEntry,
+                              index: 0,
+                            ),
+                          ),
+                          SizedBox(width: gap),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                for (var i = 0; i < otherDemos.length; i++) ...[
+                                  _DemoCard(
+                                    entry: otherDemos[i],
+                                    index: i + 1,
+                                  ),
+                                  if (i != otherDemos.length - 1)
+                                    SizedBox(height: gap),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
                       );
                     },
                   ),
@@ -195,7 +246,7 @@ class _DemoCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           SizedBox(
-            height: 130,
+            height: entry.id == 'image_loader_takehome' ? 420 : 136,
             width: double.infinity,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(14),
@@ -218,17 +269,46 @@ class _DemoCard extends StatelessWidget {
         return const _ShimmerScanPreview();
       case 'liquid_chip':
         return const _LiquidChipPreview();
-      case 'you_custom':
-      default:
-        return Text(
-          'Map your widget here',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.montserrat(
-            color: AppColors.cyan.withValues(alpha: 0.8),
-            fontSize: 13,
-          ),
-        );
+      case 'image_loader_takehome':
+        return const _ImageLoaderPackageEmbed();
     }
+    return const SizedBox.shrink();
+  }
+}
+
+/// Wraps vendored [`image_loader`] `RandomImageScreen` with its required
+/// [`AppVisualTheme`] extension (same as standalone app dark theme).
+class _ImageLoaderPackageEmbed extends StatelessWidget {
+  const _ImageLoaderPackageEmbed();
+
+  @override
+  Widget build(BuildContext context) {
+    return Theme(
+      data: ThemeData(
+        brightness: Brightness.dark,
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.orange,
+          brightness: Brightness.dark,
+          secondary: Colors.white,
+        ),
+        extensions: const [
+          AppVisualTheme(
+            borderColor: Colors.black,
+            glowOpacity: 0.7,
+            overlayOpacity: 0.12,
+            glowColor: Colors.orange,
+            backGroundColor: Colors.black,
+          ),
+        ],
+      ),
+      child: SizedBox.expand(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: const RandomImageScreen(),
+        ),
+      ),
+    );
   }
 }
 
