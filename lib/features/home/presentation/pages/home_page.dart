@@ -6,9 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/constants/animation_durations.dart';
+import '../../../../core/constants/asset_paths.dart';
 import '../../../../core/constants/breakpoints.dart';
 import '../../../../core/providers/services_providers.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/cv_open/cv_open.dart';
 import '../../../../core/widgets/background/animated_gradient_backdrop.dart';
 import '../../../../core/widgets/hero/hero_cta_row.dart';
 import '../../../../core/widgets/hero/hero_gif_section.dart';
@@ -79,6 +81,7 @@ class _HomePageState extends ConsumerState<HomePage>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _bioEntranceController.forward();
+      _buttonsEntranceController.forward();
       _startTyping();
     });
   }
@@ -93,7 +96,6 @@ class _HomePageState extends ConsumerState<HomePage>
       if (!mounted) return;
       if (_typedLength >= full.length) {
         timer.cancel();
-        _buttonsEntranceController.forward();
         return;
       }
       setState(() => _typedLength++);
@@ -116,6 +118,15 @@ class _HomePageState extends ConsumerState<HomePage>
     if (!ok && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Could not open: $url')),
+      );
+    }
+  }
+
+  Future<void> _openCv() async {
+    final ok = await openBundledCvPdf(AssetPaths.cvPdf);
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open CV PDF')),
       );
     }
   }
@@ -302,7 +313,7 @@ class _HomePageState extends ConsumerState<HomePage>
                                     constraints: BoxConstraints(
                                       maxWidth: isMobile
                                           ? double.infinity
-                                          : 520,
+                                          : 760,
                                     ),
                                     child: HeroCtaRow(
                                       isMobile: isMobile,
@@ -310,6 +321,7 @@ class _HomePageState extends ConsumerState<HomePage>
                                           _openUrl(content.githubUrl),
                                       onLinkedIn: () =>
                                           _openUrl(content.linkedinUrl),
+                                      onCv: _openCv,
                                     ),
                                   ),
                                 ),
