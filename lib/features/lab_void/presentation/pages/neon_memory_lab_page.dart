@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -6,8 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/constants/breakpoints.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/background/animated_gradient_backdrop.dart';
 
-/// Neon memory match — colorful board, subtle motion, centered grid (no dead bottom gap).
+/// Neon memory match — colorful board, centered grid (no dead bottom gap).
 class NeonMemoryLabPage extends StatefulWidget {
   const NeonMemoryLabPage({super.key});
 
@@ -15,11 +15,8 @@ class NeonMemoryLabPage extends StatefulWidget {
   State<NeonMemoryLabPage> createState() => _NeonMemoryLabPageState();
 }
 
-class _NeonMemoryLabPageState extends State<NeonMemoryLabPage>
-    with TickerProviderStateMixin {
+class _NeonMemoryLabPageState extends State<NeonMemoryLabPage> {
   static const _pairCount = 8;
-
-  late final AnimationController _ambient;
 
   final _rand = math.Random();
 
@@ -57,10 +54,6 @@ class _NeonMemoryLabPageState extends State<NeonMemoryLabPage>
   @override
   void initState() {
     super.initState();
-    _ambient = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 8),
-    )..repeat(reverse: true);
     _shuffleDeck();
   }
 
@@ -116,12 +109,6 @@ class _NeonMemoryLabPageState extends State<NeonMemoryLabPage>
   }
 
   @override
-  void dispose() {
-    _ambient.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final w = MediaQuery.sizeOf(context).width;
     final isMobile = w < Breakpoints.mobile;
@@ -130,18 +117,7 @@ class _NeonMemoryLabPageState extends State<NeonMemoryLabPage>
     return Stack(
       fit: StackFit.expand,
       children: [
-        Positioned.fill(
-          child: IgnorePointer(
-            child: AnimatedBuilder(
-              animation: _ambient,
-              builder: (context, _) {
-                return CustomPaint(
-                  painter: _NeonWashPainter(t: _ambient.value),
-                );
-              },
-            ),
-          ),
-        ),
+        const StaticGradientBackdrop(),
         Padding(
           padding: EdgeInsets.fromLTRB(pad, 18, pad, 12),
           child: Column(
@@ -150,16 +126,15 @@ class _NeonMemoryLabPageState extends State<NeonMemoryLabPage>
               ShaderMask(
                 blendMode: BlendMode.srcIn,
                 shaderCallback: (bounds) {
-                  final t = _ambient.value;
-                  return LinearGradient(
-                    begin: Alignment(-1 + t * 0.4, 0),
-                    end: Alignment(1 - t * 0.3, 0),
+                  return const LinearGradient(
+                    begin: Alignment(-1, 0),
+                    end: Alignment(1, 0),
                     colors: [
                       AppColors.cyan,
                       AppColors.orange,
-                      AppColors.cyan.withValues(alpha: 0.85),
+                      AppColors.cyan,
                     ],
-                    stops: const [0.0, 0.55, 1.0],
+                    stops: [0.0, 0.55, 1.0],
                   ).createShader(bounds);
                 },
                 child: Text(
@@ -224,92 +199,72 @@ class _NeonMemoryLabPageState extends State<NeonMemoryLabPage>
                     final board = 4 * cell + 3 * gap;
 
                     return Center(
-                      child: AnimatedBuilder(
-                        animation: _ambient,
-                        builder: (context, _) {
-                          final t = _ambient.value;
-                          final wash = Color.lerp(
-                            AppColors.deep2,
-                            AppColors.deep3,
-                            t,
-                          )!;
-                          return DecoratedBox(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(22),
-                              border: Border.all(
-                                width: 1.5,
-                                color: Color.lerp(
-                                  AppColors.cyan,
-                                  AppColors.orange,
-                                  t,
-                                )!
-                                    .withValues(alpha: 0.45 + 0.2 * t),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.cyan
-                                      .withValues(alpha: 0.12 + 0.08 * t),
-                                  blurRadius: 24,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: AppColors.orange
-                                      .withValues(alpha: 0.08),
-                                  blurRadius: 32,
-                                  spreadRadius: -4,
-                                ),
-                              ],
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  AppColors.deep1.withValues(alpha: 0.88),
-                                  wash.withValues(alpha: 0.92),
-                                  Color.lerp(
-                                    AppColors.surface,
-                                    AppColors.deep2,
-                                    t,
-                                  )!.withValues(alpha: 0.75),
-                                ],
-                                stops: const [0.0, 0.45, 1.0],
-                              ),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(22),
+                          border: Border.all(
+                            width: 1.5,
+                            color: Color.lerp(
+                              AppColors.cyan,
+                              AppColors.orange,
+                              0.5,
+                            )!.withValues(alpha: 0.55),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.cyan.withValues(alpha: 0.16),
+                              blurRadius: 24,
+                              spreadRadius: 0,
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(panelPad),
-                              child: SizedBox(
-                                width: board,
-                                height: board,
-                                child: GridView.builder(
-                                  physics:
-                                      const NeverScrollableScrollPhysics(),
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4,
-                                    crossAxisSpacing: gap,
-                                    mainAxisSpacing: gap,
-                                    childAspectRatio: 1,
-                                  ),
-                                  itemCount: 16,
-                                  itemBuilder: (context, i) {
-                                    final pair = _pairIds[i];
-                                    final icon = _glyphs[pair];
-                                    final show = _matched[i] || _faceUp[i];
-                                    return _Tile(
-                                      tileIndex: i,
-                                      pairColor: _pairColors[
-                                          pair % _pairColors.length],
-                                      show: show,
-                                      matched: _matched[i],
-                                      icon: icon,
-                                      pulseT: t,
-                                      onTap: () => _onTileTap(i),
-                                    );
-                                  },
-                                ),
-                              ),
+                            BoxShadow(
+                              color: AppColors.orange.withValues(alpha: 0.08),
+                              blurRadius: 32,
+                              spreadRadius: -4,
                             ),
-                          );
-                        },
+                          ],
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              AppColors.deep1.withValues(alpha: 0.88),
+                              AppColors.deep3.withValues(alpha: 0.92),
+                              AppColors.surface.withValues(alpha: 0.75),
+                            ],
+                            stops: const [0.0, 0.45, 1.0],
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(panelPad),
+                          child: SizedBox(
+                            width: board,
+                            height: board,
+                            child: GridView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 4,
+                                crossAxisSpacing: gap,
+                                mainAxisSpacing: gap,
+                                childAspectRatio: 1,
+                              ),
+                              itemCount: 16,
+                              itemBuilder: (context, i) {
+                                final pair = _pairIds[i];
+                                final icon = _glyphs[pair];
+                                final show = _matched[i] || _faceUp[i];
+                                return _Tile(
+                                  tileIndex: i,
+                                  pairColor:
+                                      _pairColors[pair % _pairColors.length],
+                                  show: show,
+                                  matched: _matched[i],
+                                  icon: icon,
+                                  onTap: () => _onTileTap(i),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
                       ),
                     );
                   },
@@ -332,47 +287,6 @@ class _NeonMemoryLabPageState extends State<NeonMemoryLabPage>
       ],
     );
   }
-}
-
-class _NeonWashPainter extends CustomPainter {
-  _NeonWashPainter({required this.t});
-
-  final double t;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final cx = size.width * (0.35 + 0.3 * math.sin(t * math.pi * 2));
-    final cy = size.height * (0.25 + 0.15 * math.cos(t * math.pi * 2 * 0.7));
-
-    void blob(Offset c, double r, Color color) {
-      final p = Paint()
-        ..color = color.withValues(alpha: 0.14)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 48);
-      canvas.drawCircle(c, r, p);
-    }
-
-    blob(Offset(cx, cy), size.shortestSide * 0.38,
-        Color.lerp(AppColors.cyan, AppColors.deep2, 0.5)!);
-    blob(Offset(size.width * 0.75, size.height * 0.55), size.shortestSide * 0.32,
-        Color.lerp(AppColors.orange, AppColors.deep2, 0.5)!);
-    blob(Offset(size.width * 0.2 + 40 * t, size.height * 0.7),
-        size.shortestSide * 0.26, AppColors.cyan);
-
-    final edge = Paint()
-      ..shader = RadialGradient(
-        center: const Alignment(-0.6, -0.4),
-        radius: 1.15,
-        colors: [
-          AppColors.cyan.withValues(alpha: 0.06),
-          Colors.transparent,
-        ],
-      ).createShader(Offset.zero & size);
-    canvas.drawRect(Offset.zero & size, edge);
-  }
-
-  @override
-  bool shouldRepaint(covariant _NeonWashPainter oldDelegate) =>
-      oldDelegate.t != t;
 }
 
 class _MiniStat extends StatelessWidget {
@@ -430,7 +344,6 @@ class _Tile extends StatelessWidget {
     required this.show,
     required this.matched,
     required this.icon,
-    required this.pulseT,
     required this.onTap,
   });
 
@@ -440,13 +353,10 @@ class _Tile extends StatelessWidget {
   final bool show;
   final bool matched;
   final IconData icon;
-  final double pulseT;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final glow = matched ? 0.35 + 0.15 * math.sin(pulseT * math.pi * 2) : 0.0;
-
     // Face-down backs must not encode pair id — tint from slot index only.
     final backPhase = (tileIndex % 8) / 7.0;
     final backTop = Color.lerp(
@@ -472,12 +382,12 @@ class _Tile extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: matched
-                  ? Color.lerp(AppColors.cyan, pairColor, 0.45)!.withValues(
-                      alpha: 0.75 + 0.15 * glow,
-                    )
+                  ? Color.lerp(AppColors.cyan, pairColor, 0.45)!
+                      .withValues(alpha: 0.8)
                   : show
                       ? pairColor.withValues(alpha: 0.55)
-                      : Colors.white.withValues(alpha: 0.1 + 0.02 * (tileIndex % 4)),
+                      : Colors.white
+                          .withValues(alpha: 0.1 + 0.02 * (tileIndex % 4)),
               width: matched ? 2.2 : 1.2,
             ),
             gradient: show
@@ -500,8 +410,8 @@ class _Tile extends StatelessWidget {
             boxShadow: matched
                 ? [
                     BoxShadow(
-                      color: pairColor.withValues(alpha: 0.35 + glow * 0.3),
-                      blurRadius: 16 + 8 * glow,
+                      color: pairColor.withValues(alpha: 0.45),
+                      blurRadius: 18,
                       spreadRadius: -1,
                     ),
                   ]

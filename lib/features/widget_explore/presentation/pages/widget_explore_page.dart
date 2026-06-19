@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -316,126 +314,77 @@ class _ImageLoaderPackageEmbed extends StatelessWidget {
 /// Mini demos — keep isolated so you can migrate to standalone files later.
 /// ---------------------------------------------------------------------------
 
-class _NeonOrbPreview extends StatefulWidget {
+class _NeonOrbPreview extends StatelessWidget {
   const _NeonOrbPreview();
 
   @override
-  State<_NeonOrbPreview> createState() => _NeonOrbPreviewState();
-}
-
-class _NeonOrbPreviewState extends State<_NeonOrbPreview>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 1400),
-  )..repeat(reverse: true);
-
-  @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _c,
-      builder: (_, __) {
-        final s = 0.92 + (_c.value * 0.12);
-        return Transform.scale(
-          scale: s,
-          child: Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  AppColors.cyan.withValues(alpha: 0.95),
-                  AppColors.deep2.withValues(alpha: 0.05),
-                ],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.cyan.withValues(alpha: 0.55),
-                  blurRadius: 22 + 10 * _c.value,
-                  spreadRadius: 1,
-                ),
-              ],
-            ),
+    return Container(
+      width: 72,
+      height: 72,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [
+            AppColors.cyan.withValues(alpha: 0.95),
+            AppColors.deep2.withValues(alpha: 0.05),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.cyan.withValues(alpha: 0.55),
+            blurRadius: 27,
+            spreadRadius: 1,
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }
 
-class _ShimmerScanPreview extends StatefulWidget {
+class _ShimmerScanPreview extends StatelessWidget {
   const _ShimmerScanPreview();
 
   @override
-  State<_ShimmerScanPreview> createState() => _ShimmerScanPreviewState();
-}
-
-class _ShimmerScanPreviewState extends State<_ShimmerScanPreview>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(
-    vsync: this,
-    duration: const Duration(seconds: 2),
-  )..repeat();
-
-  @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _c,
-      builder: (_, __) {
-        final t = _c.value;
-        return SizedBox(
-          width: 180,
-          height: 72,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.white.withValues(alpha: 0.06),
-                      Colors.black.withValues(alpha: 0.55),
-                    ],
-                  ),
-                ),
+    return SizedBox(
+      width: 180,
+      height: 72,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.white.withValues(alpha: 0.06),
+                  Colors.black.withValues(alpha: 0.55),
+                ],
               ),
-              Align(
-                alignment: Alignment(math.cos(t * math.pi * 2) * 0.92, 0),
-                child: Container(
-                  width: 54,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        AppColors.cyan.withValues(alpha: 0.85),
-                        AppColors.orange.withValues(alpha: 0.5),
-                        Colors.transparent,
-                      ],
-                      stops: const [0.0, 0.45, 0.65, 1.0],
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        );
-      },
+          Align(
+            alignment: Alignment.center,
+            child: Container(
+              width: 54,
+              height: 72,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    AppColors.cyan.withValues(alpha: 0.85),
+                    AppColors.orange.withValues(alpha: 0.5),
+                    Colors.transparent,
+                  ],
+                  stops: const [0.0, 0.45, 0.65, 1.0],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,11 +1,8 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:image_loader/constants.dart';
 import 'package:image_loader/features/random_image/notifier/random_image_change_notifier.dart';
 import 'package:image_loader/features/random_image/repo/image_repository.dart';
 import 'package:image_loader/utils/app_visual_theme.dart';
-import 'package:image_loader/utils/fancy_logo_loader.dart';
 import 'package:image_loader/utils/outline_button.dart';
 import 'package:image_loader/utils/remote_image.dart';
 import 'package:provider/provider.dart';
@@ -38,26 +35,16 @@ class _RandomImageView extends StatelessWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          //  Dynamic background color
           AnimatedContainer(
             duration: const Duration(milliseconds: 1000),
             curve: Curves.easeInOut,
             color: backgroundColor,
           ),
-
-          //   blur
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-            child: const SizedBox.expand(),
-          ),
-
-          //   depth overlay
           Container(
             color: Colors.black.withAlpha(
               (visuals.overlayOpacity * 255).round(),
             ),
           ),
-          // Main content (logo + image)
           Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -66,7 +53,10 @@ class _RandomImageView extends StatelessWidget {
                   SizedBox(
                     height: 240,
                     child: Center(
-                      child: FancyLogoLoader(color: visuals.glowColor),
+                      child: CircularProgressIndicator(
+                        color: visuals.glowColor,
+                        strokeWidth: 2.5,
+                      ),
                     ),
                   )
                 else if (controller.errorMessage != null)
@@ -82,7 +72,6 @@ class _RandomImageView extends StatelessWidget {
                 !controller.isLoading
                     ? OutlineButton(
                         text: buttonText,
-
                         onPressed: controller.isLoading
                             ? null
                             : controller.loadImage,

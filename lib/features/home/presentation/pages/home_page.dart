@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,7 +11,6 @@ import '../../../../core/utils/cv_open/cv_open.dart';
 import '../../../../core/widgets/background/animated_gradient_backdrop.dart';
 import '../../../../core/widgets/hero/hero_cta_row.dart';
 import '../../../../core/widgets/hero/hero_gif_section.dart';
-import '../../../../core/widgets/hero/typing_bio_display.dart';
 import '../providers/home_providers.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -26,7 +22,6 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage>
     with TickerProviderStateMixin {
-  late final AnimationController _gradientController;
   late final AnimationController _bioEntranceController;
   late final AnimationController _buttonsEntranceController;
 
@@ -35,17 +30,9 @@ class _HomePageState extends ConsumerState<HomePage>
   late final Animation<double> _buttonsFade;
   late final Animation<Offset> _buttonsSlide;
 
-  Timer? _typingTimer;
-  int _typedLength = 0;
-
   @override
   void initState() {
     super.initState();
-
-    _gradientController = AnimationController(
-      vsync: this,
-      duration: AnimationDurations.gradientCycle,
-    )..repeat(reverse: true);
 
     _bioEntranceController = AnimationController(
       vsync: this,
@@ -82,30 +69,11 @@ class _HomePageState extends ConsumerState<HomePage>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _bioEntranceController.forward();
       _buttonsEntranceController.forward();
-      _startTyping();
-    });
-  }
-
-  void _startTyping() {
-    final content = ref.read(heroSectionContentProvider);
-    final full = content.bioText;
-
-    _typingTimer?.cancel();
-    _typedLength = 0;
-    _typingTimer = Timer.periodic(AnimationDurations.typingTick, (timer) {
-      if (!mounted) return;
-      if (_typedLength >= full.length) {
-        timer.cancel();
-        return;
-      }
-      setState(() => _typedLength++);
     });
   }
 
   @override
   void dispose() {
-    _typingTimer?.cancel();
-    _gradientController.dispose();
     _bioEntranceController.dispose();
     _buttonsEntranceController.dispose();
     super.dispose();
@@ -139,7 +107,7 @@ class _HomePageState extends ConsumerState<HomePage>
       body: Stack(
         fit: StackFit.expand,
         children: [
-          AnimatedGradientBackdrop(controller: _gradientController),
+          const StaticGradientBackdrop(),
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -168,22 +136,14 @@ class _HomePageState extends ConsumerState<HomePage>
                       children: [
                         Positioned.fill(
                           child: IgnorePointer(
-                            child: AnimatedBuilder(
-                              animation: _gradientController,
-                              builder: (context, _) {
-                                final t = _gradientController.value;
-                                final c = Color.lerp(
+                            child: CustomPaint(
+                              painter: _HomeCornerBracketsPainter(
+                                color: Color.lerp(
                                   AppColors.cyan,
                                   AppColors.orange,
-                                  0.35 + 0.35 * math.sin(t * math.pi * 2),
-                                )!;
-                                return CustomPaint(
-                                  painter: _HomeCornerBracketsPainter(
-                                    color:
-                                        c.withValues(alpha: 0.18 + 0.08 * t),
-                                  ),
-                                );
-                              },
+                                  0.35,
+                                )!.withValues(alpha: 0.18),
+                              ),
                             ),
                           ),
                         ),
@@ -192,56 +152,44 @@ class _HomePageState extends ConsumerState<HomePage>
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              _HomeHeroIntro(
-                                isMobile: isMobile,
-                                pulse: _gradientController,
-                              ),
+                              _HomeHeroIntro(isMobile: isMobile),
                               SizedBox(height: isMobile ? 20 : 26),
-                              AnimatedBuilder(
-                                animation: _gradientController,
-                                builder: (context, _) {
-                                  final t = _gradientController.value;
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.circular(20),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: AppColors.cyan.withValues(
-                                              alpha: 0.12 + 0.1 * t),
-                                          blurRadius: 28,
-                                          spreadRadius: -2,
-                                        ),
-                                        BoxShadow(
-                                          color: AppColors.orange.withValues(
-                                              alpha: 0.08),
-                                          blurRadius: 40,
-                                          spreadRadius: -6,
-                                        ),
-                                      ],
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        colors: [
-                                          Color.lerp(AppColors.cyan,
-                                              AppColors.orange, t)!,
-                                          Color.lerp(AppColors.orange,
-                                              AppColors.cyan, t)!,
-                                        ],
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppColors.cyan.withValues(
+                                        alpha: 0.12,
                                       ),
+                                      blurRadius: 28,
+                                      spreadRadius: -2,
                                     ),
-                                    padding: const EdgeInsets.all(2),
-                                    child: ClipRRect(
-                                      borderRadius:
-                                          BorderRadius.circular(18),
-                                      child: HeroGifSection(
-                                        maxHeight: gifMaxHeight,
-                                        assetPath:
-                                            content.heroGifAssetPath,
+                                    BoxShadow(
+                                      color: AppColors.orange.withValues(
+                                        alpha: 0.08,
                                       ),
+                                      blurRadius: 40,
+                                      spreadRadius: -6,
                                     ),
-                                  );
-                                },
+                                  ],
+                                  gradient: const LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      AppColors.cyan,
+                                      AppColors.orange,
+                                    ],
+                                  ),
+                                ),
+                                padding: const EdgeInsets.all(2),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(18),
+                                  child: HeroGifSection(
+                                    maxHeight: gifMaxHeight,
+                                    assetPath: content.heroGifAssetPath,
+                                  ),
+                                ),
                               ),
                               SizedBox(height: isMobile ? 24 : 30),
                               FadeTransition(
@@ -254,8 +202,7 @@ class _HomePageState extends ConsumerState<HomePage>
                                     ),
                                     child: DecoratedBox(
                                       decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(22),
+                                        borderRadius: BorderRadius.circular(22),
                                         border: Border.all(
                                           color: Colors.white
                                               .withValues(alpha: 0.14),
@@ -265,9 +212,11 @@ class _HomePageState extends ConsumerState<HomePage>
                                           end: Alignment.bottomRight,
                                           colors: [
                                             AppColors.surface.withValues(
-                                                alpha: 0.55),
+                                              alpha: 0.55,
+                                            ),
                                             AppColors.deep2.withValues(
-                                                alpha: 0.42),
+                                              alpha: 0.42,
+                                            ),
                                           ],
                                         ),
                                         boxShadow: [
@@ -286,16 +235,15 @@ class _HomePageState extends ConsumerState<HomePage>
                                           isMobile ? 18 : 26,
                                           isMobile ? 20 : 24,
                                         ),
-                                        child: TypingBioDisplay(
-                                          fullText: content.bioText,
-                                          visibleLength: _typedLength,
+                                        child: Text(
+                                          content.bioText,
                                           textAlign: TextAlign.center,
-                                          baseStyle: GoogleFonts.montserrat(
-                                            fontSize:
-                                                isMobile ? 16 : 18,
+                                          style: GoogleFonts.montserrat(
+                                            fontSize: isMobile ? 16 : 18,
                                             height: 1.58,
                                             color: Colors.white.withValues(
-                                                alpha: 0.93),
+                                              alpha: 0.93,
+                                            ),
                                             fontWeight: FontWeight.w400,
                                           ),
                                         ),
@@ -311,9 +259,8 @@ class _HomePageState extends ConsumerState<HomePage>
                                   position: _buttonsSlide,
                                   child: ConstrainedBox(
                                     constraints: BoxConstraints(
-                                      maxWidth: isMobile
-                                          ? double.infinity
-                                          : 760,
+                                      maxWidth:
+                                          isMobile ? double.infinity : 760,
                                     ),
                                     child: HeroCtaRow(
                                       isMobile: isMobile,
@@ -343,13 +290,9 @@ class _HomePageState extends ConsumerState<HomePage>
 }
 
 class _HomeHeroIntro extends StatelessWidget {
-  const _HomeHeroIntro({
-    required this.isMobile,
-    required this.pulse,
-  });
+  const _HomeHeroIntro({required this.isMobile});
 
   final bool isMobile;
-  final Animation<double> pulse;
 
   @override
   Widget build(BuildContext context) {
@@ -373,37 +316,31 @@ class _HomeHeroIntro extends StatelessWidget {
           ),
         ),
         SizedBox(height: isMobile ? 8 : 10),
-        AnimatedBuilder(
-          animation: pulse,
-          builder: (context, _) {
-            final t = pulse.value;
-            return ShaderMask(
-              blendMode: BlendMode.srcIn,
-              shaderCallback: (bounds) {
-                return LinearGradient(
-                  begin: Alignment(-1 + t * 0.5, 0),
-                  end: Alignment(1 - t * 0.35, 0),
-                  colors: [
-                    AppColors.cyan,
-                    AppColors.orange,
-                    AppColors.cyan.withValues(alpha: 0.9),
-                  ],
-                  stops: const [0.0, 0.52, 1.0],
-                ).createShader(bounds);
-              },
-              child: Text(
-                'Production Level',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.orbitron(
-                  fontSize: isMobile ? 24 : 34,
-                  fontWeight: FontWeight.w900,
-                  height: 1.1,
-                  letterSpacing: 0.4,
-                  color: Colors.white,
-                ),
-              ),
-            );
+        ShaderMask(
+          blendMode: BlendMode.srcIn,
+          shaderCallback: (bounds) {
+            return const LinearGradient(
+              begin: Alignment(-1, 0),
+              end: Alignment(1, 0),
+              colors: [
+                AppColors.cyan,
+                AppColors.orange,
+                AppColors.cyan,
+              ],
+              stops: [0.0, 0.52, 1.0],
+            ).createShader(bounds);
           },
+          child: Text(
+            'Production Level',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.orbitron(
+              fontSize: isMobile ? 24 : 34,
+              fontWeight: FontWeight.w900,
+              height: 1.1,
+              letterSpacing: 0.4,
+              color: Colors.white,
+            ),
+          ),
         ),
         SizedBox(height: isMobile ? 8 : 10),
         Text(
@@ -506,4 +443,3 @@ class _HomeCornerBracketsPainter extends CustomPainter {
   bool shouldRepaint(covariant _HomeCornerBracketsPainter oldDelegate) =>
       oldDelegate.color != color;
 }
-
